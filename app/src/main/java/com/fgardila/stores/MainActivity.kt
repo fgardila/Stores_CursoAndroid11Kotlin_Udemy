@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.fgardila.stores.databinding.ActivityMainBinding
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 class MainActivity : AppCompatActivity(), OnClickListener {
 
@@ -17,8 +19,13 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         setContentView(mBinding.root)
 
         mBinding.btnSave.setOnClickListener {
-            val store = Store(name = mBinding.etName.text.toString().trim())
-            mAdapter.add(store)
+            val store = StoreEntity(name = mBinding.etName.text.toString().trim())
+
+            Thread {
+                StoreApplication.database.storeDao().addStore(store)
+            }.start()
+
+            //mAdapter.add(store)
         }
 
         setUpRecyclerView()
@@ -27,6 +34,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
     private fun setUpRecyclerView() {
         mAdapter = StoreAdapter(mutableListOf(), this)
         mGridLayout = GridLayoutManager(this, 2)
+        getStores()
 
         mBinding.recyclerView.apply {
             setHasFixedSize(true)
@@ -35,10 +43,19 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         }
     }
 
+    private fun getStores() {
+        doAsync {
+            val stores = StoreApplication.database.storeDao().getAllStores()
+            uiThread {
+                mAdapter.setStores(stores)
+            }
+        }
+    }
+
     /**
      * OnClickListener
      */
-    override fun onClick(store: Store) {
+    override fun onClick(storeEntity: StoreEntity) {
         TODO("Not yet implemented")
     }
 }
