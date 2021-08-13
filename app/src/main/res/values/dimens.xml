@@ -5,4 +5,5 @@
     <dimen name="common_padding_default">16dp</dimen>
     <dimen name="common_padding_moddle">24dp</dimen>
     <dimen name="card_img_size">40dp</dimen>
+    <dimen name="photo_size_thumb">88dp</dimen>
 </resources>
