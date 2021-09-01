@@ -1,10 +1,18 @@
 package com.fgardila.stores
 
+import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.fgardila.stores.databinding.FragmentEditStoreBinding
 import com.google.android.material.snackbar.Snackbar
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 class EditStoreFragment : Fragment() {
 
@@ -28,6 +36,14 @@ class EditStoreFragment : Fragment() {
         mActivity?.supportActionBar?.title = getString(R.string.edit_store_title_add)
 
         setHasOptionsMenu(true)
+
+        mBinding.tiePhotoUrl.addTextChangedListener {
+            Glide.with(this)
+                .load(mBinding.tiePhotoUrl.text.toString())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .centerCrop()
+                .into(mBinding.imgPhoto)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -42,14 +58,40 @@ class EditStoreFragment : Fragment() {
                 true
             }
             R.id.action_save -> {
-                Snackbar.make(mBinding.root, "Tienda agregada correctamente", Snackbar.LENGTH_SHORT)
-                    .show()
+
+                val store = StoreEntity(name = mBinding.tieName.text.toString().trim(),
+                phone = mBinding.tiePhone.text.toString().trim(),
+                website = mBinding.tieWebsite.text.toString().trim())
+
+                doAsync {
+                    store.id = StoreApplication.database.storeDao().addStore(store)
+                    uiThread {
+                        mActivity?.addStore(store)
+                        hideKeyboard()
+                        /*Snackbar.make(mBinding.root, "Tienda agregada correctamente", Snackbar.LENGTH_SHORT)
+                            .show()*/
+                        Toast.makeText(mActivity, "Tienda agregada correctamente", Toast.LENGTH_SHORT).show()
+                        mActivity?.onBackPressed()
+                    }
+                }
                 true
             }
             else -> {
                 return super.onOptionsItemSelected(item)
             }
         }
+    }
+
+    private fun hideKeyboard() {
+        val imm = mActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (view != null) {
+            imm.hideSoftInputFromWindow(view!!.windowToken, 0)
+        }
+    }
+
+    override fun onDestroyView() {
+        hideKeyboard()
+        super.onDestroyView()
     }
 
     override fun onDestroy() {

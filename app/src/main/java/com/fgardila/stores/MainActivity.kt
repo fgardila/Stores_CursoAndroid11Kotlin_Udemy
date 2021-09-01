@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
      * OnClickListener
      */
     override fun onClick(storeEntity: StoreEntity) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onFavoriteStore(storeEntity: StoreEntity) {
@@ -93,5 +93,13 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
             mBinding.fab.show()
         else
             mBinding.fab.hide()
+    }
+
+    override fun addStore(storeEntity: StoreEntity) {
+        mAdapter.add(storeEntity)
+    }
+
+    override fun updateStore(storeEntity: StoreEntity) {
+        mAdapter.update(storeEntity)
     }
 }
