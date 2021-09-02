@@ -61,7 +61,8 @@ class EditStoreFragment : Fragment() {
 
                 val store = StoreEntity(name = mBinding.tieName.text.toString().trim(),
                 phone = mBinding.tiePhone.text.toString().trim(),
-                website = mBinding.tieWebsite.text.toString().trim())
+                website = mBinding.tieWebsite.text.toString().trim(),
+                photoUrl = mBinding.tiePhotoUrl.text.toString().trim())
 
                 doAsync {
                     store.id = StoreApplication.database.storeDao().addStore(store)
