@@ -1,6 +1,8 @@
 package com.fgardila.stores
 
 import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -91,8 +93,8 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
             .setItems(items) { dialog, which ->
                 when(which) {
                     0 -> confirmDelete(storeEntity)
-                    1 -> Toast.makeText(this, "Llamar", Toast.LENGTH_SHORT).show()
-                    2 -> Toast.makeText(this, "Sitio web", Toast.LENGTH_SHORT).show()
+                    1 -> dial(storeEntity.phone)
+                    2 -> goToWebSite(storeEntity.website)
                 }
             }
             .show()
@@ -112,6 +114,33 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
             .setNegativeButton(R.string.dialog_delete_cancel, null)
             .show()
     }
+
+    private fun dial(phone: String) {
+        val callIntent = Intent().apply {
+            action = Intent.ACTION_DIAL
+            data = Uri.parse("tel:$phone")
+        }
+        if (callIntent.resolveActivity(packageManager) != null)
+            startActivity(callIntent)
+        else
+            Toast.makeText(this, R.string.main_error_no_resolve, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun goToWebSite(webSite: String) {
+        if (webSite.isEmpty()) {
+            Toast.makeText(this, R.string.main_error_no_website, Toast.LENGTH_SHORT).show()
+        } else {
+            val websiteIntent = Intent().apply {
+                action = Intent.ACTION_VIEW
+                data = Uri.parse(webSite)
+            }
+            if (websiteIntent.resolveActivity(packageManager) != null)
+                startActivity(websiteIntent)
+            else
+                Toast.makeText(this, R.string.main_error_no_resolve, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     /**
      * MainAux
      */
