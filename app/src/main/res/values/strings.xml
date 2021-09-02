@@ -14,4 +14,8 @@
     <string name="arg_id">key_id</string>
     <string name="edit_store_message_valid">Revise los campos requeridos</string>
     <string name="edit_store_title_edit">Editar tienda</string>
+    <string name="dialog_delete_title">Eliminar tienda</string>
+    <string name="dialog_delete_confirm">Eliminar</string>
+    <string name="dialog_delete_cancel">Cancelar</string>
+    <string name="dialog_options_title">Que desea hacer?</string>
 </resources>
