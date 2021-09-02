@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/item_card_height"
     android:layout_marginTop="@dimen/common_padding_min"
-    android:layout_marginHorizontal="@dimen/common_padding_min">
+    android:layout_marginStart="@dimen/common_padding_min">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
