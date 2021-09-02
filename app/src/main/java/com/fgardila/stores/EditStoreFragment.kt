@@ -2,6 +2,7 @@ package com.fgardila.stores
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -36,9 +37,11 @@ class EditStoreFragment : Fragment() {
         val id = arguments?.getLong(getString(R.string.arg_id), 0)
 
         if (id != null && id != 0L) {
-            //Toast.makeText(activity, id.toString(), Toast.LENGTH_SHORT).show()
             mIsEditMode = true
             getStore(id)
+        } else {
+            mIsEditMode = false
+            mStoreEntity = StoreEntity(name = "", phone = "", photoUrl = "")
         }
 
         mActivity = activity as? MainActivity
@@ -65,14 +68,16 @@ class EditStoreFragment : Fragment() {
         }
     }
 
-    private fun setUiStore(mStoreEntity: StoreEntity) {
+    private fun setUiStore(storeEntity: StoreEntity) {
         with(mBinding) {
-            tieName.setText(mStoreEntity.name)
-            tiePhone.setText(mStoreEntity.phone)
-            tieWebsite.setText(mStoreEntity.website)
-            tiePhotoUrl.setText(mStoreEntity.photoUrl)
+            tieName.text = storeEntity.name.editable()
+            tiePhone.text = storeEntity.phone.editable()
+            tieWebsite.text = storeEntity.website.editable()
+            tiePhotoUrl.text = storeEntity.photoUrl.editable()
         }
     }
+
+    private fun String.editable(): Editable = Editable.Factory.getInstance().newEditable(this)
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_save, menu)
@@ -86,21 +91,30 @@ class EditStoreFragment : Fragment() {
                 true
             }
             R.id.action_save -> {
+                if (mStoreEntity != null) {
+                    with(mStoreEntity!!) {
+                        name = mBinding.tieName.text.toString().trim()
+                        phone = mBinding.tiePhone.text.toString().trim()
+                        website = mBinding.tieWebsite.text.toString().trim()
+                        photoUrl = mBinding.tiePhotoUrl.text.toString().trim()
+                    }
+                    doAsync {
+                        if (mIsEditMode)
+                            mStoreEntity!!.id = StoreApplication.database.storeDao().updateStore(mStoreEntity!!)
+                        else
+                            mStoreEntity!!.id = StoreApplication.database.storeDao().addStore(mStoreEntity!!)
+                        uiThread {
+                            hideKeyboard()
+                            if (mIsEditMode) {
+                                mActivity?.updateStore(mStoreEntity!!)
+                                Snackbar.make(mBinding.root, "Tienda actualizada exitosamente", Snackbar.LENGTH_SHORT).show()
+                            } else {
+                                mActivity?.addStore(mStoreEntity!!)
+                                Toast.makeText(mActivity, "Tienda agregada correctamente", Toast.LENGTH_SHORT).show()
+                                mActivity?.onBackPressed()
+                            }
 
-                val store = StoreEntity(name = mBinding.tieName.text.toString().trim(),
-                phone = mBinding.tiePhone.text.toString().trim(),
-                website = mBinding.tieWebsite.text.toString().trim(),
-                photoUrl = mBinding.tiePhotoUrl.text.toString().trim())
-
-                doAsync {
-                    store.id = StoreApplication.database.storeDao().addStore(store)
-                    uiThread {
-                        mActivity?.addStore(store)
-                        hideKeyboard()
-                        /*Snackbar.make(mBinding.root, "Tienda agregada correctamente", Snackbar.LENGTH_SHORT)
-                            .show()*/
-                        Toast.makeText(mActivity, "Tienda agregada correctamente", Toast.LENGTH_SHORT).show()
-                        mActivity?.onBackPressed()
+                        }
                     }
                 }
                 true
