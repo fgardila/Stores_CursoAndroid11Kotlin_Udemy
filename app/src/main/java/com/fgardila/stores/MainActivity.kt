@@ -67,7 +67,6 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
     override fun onClick(storeId: Long) {
         val args = Bundle()
         args.putLong(getString(R.string.arg_id), storeId)
-
         launchEditFragment(args)
     }
 
@@ -76,7 +75,7 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
         doAsync {
             StoreApplication.database.storeDao().updateStore(storeEntity)
             uiThread {
-                mAdapter.update(storeEntity)
+                updateStore(storeEntity)
             }
         }
     }

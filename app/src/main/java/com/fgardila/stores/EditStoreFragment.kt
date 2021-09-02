@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.fgardila.stores.databinding.FragmentEditStoreBinding
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputLayout
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
@@ -44,19 +45,38 @@ class EditStoreFragment : Fragment() {
             mStoreEntity = StoreEntity(name = "", phone = "", photoUrl = "")
         }
 
+        setupActionBar()
+
+        setupTextFields()
+    }
+
+    private fun setupActionBar() {
         mActivity = activity as? MainActivity
         mActivity?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        mActivity?.supportActionBar?.title = getString(R.string.edit_store_title_add)
+        mActivity?.supportActionBar?.title =
+            if (mIsEditMode) getString(R.string.edit_store_title_edit)
+            else getString(R.string.edit_store_title_add)
 
         setHasOptionsMenu(true)
+    }
 
-        mBinding.tiePhotoUrl.addTextChangedListener {
-            Glide.with(this)
-                .load(mBinding.tiePhotoUrl.text.toString())
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .centerCrop()
-                .into(mBinding.imgPhoto)
+    private fun setupTextFields() {
+        with(mBinding) {
+            tiePhotoUrl.addTextChangedListener {
+                loadImage(it.toString().trim())
+                validateFields(tilPhotoUrl)
+            }
+            tieName.addTextChangedListener { validateFields(tilName) }
+            tiePhone.addTextChangedListener { validateFields(tilPhone) }
         }
+    }
+
+    private fun loadImage(url: String) {
+        Glide.with(this)
+            .load(url)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .centerCrop()
+            .into(mBinding.imgPhoto)
     }
 
     private fun getStore(id: Long) {
@@ -91,7 +111,12 @@ class EditStoreFragment : Fragment() {
                 true
             }
             R.id.action_save -> {
-                if (mStoreEntity != null) {
+                if (mStoreEntity != null && validateFields(
+                        mBinding.tilPhotoUrl,
+                        mBinding.tilPhone,
+                        mBinding.tilName
+                    )
+                ) {
                     with(mStoreEntity!!) {
                         name = mBinding.tieName.text.toString().trim()
                         phone = mBinding.tiePhone.text.toString().trim()
@@ -99,18 +124,27 @@ class EditStoreFragment : Fragment() {
                         photoUrl = mBinding.tiePhotoUrl.text.toString().trim()
                     }
                     doAsync {
-                        if (mIsEditMode)
-                            mStoreEntity!!.id = StoreApplication.database.storeDao().updateStore(mStoreEntity!!)
+                        if (mIsEditMode) StoreApplication.database.storeDao()
+                            .updateStore(mStoreEntity!!)
                         else
-                            mStoreEntity!!.id = StoreApplication.database.storeDao().addStore(mStoreEntity!!)
+                            mStoreEntity!!.id =
+                                StoreApplication.database.storeDao().addStore(mStoreEntity!!)
                         uiThread {
                             hideKeyboard()
                             if (mIsEditMode) {
                                 mActivity?.updateStore(mStoreEntity!!)
-                                Snackbar.make(mBinding.root, "Tienda actualizada exitosamente", Snackbar.LENGTH_SHORT).show()
+                                Snackbar.make(
+                                    mBinding.root,
+                                    "Tienda actualizada exitosamente",
+                                    Snackbar.LENGTH_SHORT
+                                ).show()
                             } else {
                                 mActivity?.addStore(mStoreEntity!!)
-                                Toast.makeText(mActivity, "Tienda agregada correctamente", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    mActivity,
+                                    "Tienda agregada correctamente",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 mActivity?.onBackPressed()
                             }
 
@@ -123,6 +157,48 @@ class EditStoreFragment : Fragment() {
                 return super.onOptionsItemSelected(item)
             }
         }
+    }
+
+    private fun validateFields(vararg textFields: TextInputLayout): Boolean {
+        var isValid = true
+
+        for (textField in textFields) {
+            if (textField.editText?.text.toString().trim().isEmpty()) {
+                textField.error = getString(R.string.helper_required)
+                //textField.editText?.requestFocus()
+                isValid = false
+            } else textField.error = null
+
+            if (!isValid) Snackbar.make(
+                mBinding.root,
+                getString(R.string.edit_store_message_valid),
+                Snackbar.LENGTH_SHORT
+            ).show()
+        }
+
+        return isValid
+    }
+
+    private fun validateFields(): Boolean {
+        var isValid = true
+
+        if (mBinding.tiePhotoUrl.text.toString().trim().isEmpty()) {
+            mBinding.tilPhotoUrl.error = getString(R.string.helper_required)
+            isValid = false
+            mBinding.tiePhotoUrl.requestFocus()
+        }
+        if (mBinding.tiePhone.text.toString().trim().isEmpty()) {
+            mBinding.tilPhone.error = getString(R.string.helper_required)
+            isValid = false
+            mBinding.tiePhone.requestFocus()
+        }
+        if (mBinding.tieName.text.toString().trim().isEmpty()) {
+            mBinding.tilName.error = getString(R.string.helper_required)
+            isValid = false
+            mBinding.tieName.requestFocus()
+        }
+
+        return isValid
     }
 
     private fun hideKeyboard() {
