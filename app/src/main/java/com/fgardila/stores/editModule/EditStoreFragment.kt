@@ -1,4 +1,4 @@
-package com.fgardila.stores
+package com.fgardila.stores.editModule
 
 import android.content.Context
 import android.os.Bundle
@@ -10,7 +10,11 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.fgardila.stores.R
+import com.fgardila.stores.StoreApplication
+import com.fgardila.stores.common.entities.StoreEntity
 import com.fgardila.stores.databinding.FragmentEditStoreBinding
+import com.fgardila.stores.mainModule.MainActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import org.jetbrains.anko.doAsync

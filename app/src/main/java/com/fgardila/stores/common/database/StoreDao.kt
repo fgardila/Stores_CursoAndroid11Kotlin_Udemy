@@ -1,6 +1,7 @@
-package com.fgardila.stores
+package com.fgardila.stores.common.database
 
 import androidx.room.*
+import com.fgardila.stores.common.entities.StoreEntity
 
 @Dao
 interface StoreDao {

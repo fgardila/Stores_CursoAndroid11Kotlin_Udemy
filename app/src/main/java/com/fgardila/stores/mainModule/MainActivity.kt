@@ -1,13 +1,18 @@
-package com.fgardila.stores
+package com.fgardila.stores.mainModule
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
+import com.fgardila.stores.*
+import com.fgardila.stores.common.utils.MainAux
+import com.fgardila.stores.common.entities.StoreEntity
 import com.fgardila.stores.databinding.ActivityMainBinding
+import com.fgardila.stores.editModule.EditStoreFragment
+import com.fgardila.stores.mainModule.adapter.OnClickListener
+import com.fgardila.stores.mainModule.adapter.StoreAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread

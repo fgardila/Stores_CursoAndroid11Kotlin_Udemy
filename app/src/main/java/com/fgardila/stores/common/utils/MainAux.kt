@@ -1,4 +1,6 @@
-package com.fgardila.stores
+package com.fgardila.stores.common.utils
+
+import com.fgardila.stores.common.entities.StoreEntity
 
 interface MainAux {
     fun hideFab(isVisible: Boolean = false)
